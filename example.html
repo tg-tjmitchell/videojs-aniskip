@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>videojs-aniskip Example</title>
+  <link href="https://unpkg.com/video.js/dist/video-js.min.css" rel="stylesheet">
+  <link href="dist/videojs-aniskip.css" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .video-container {
+      margin-bottom: 20px;
+    }
+    h1 {
+      margin-bottom: 20px;
+    }
+    .options {
+      margin-top: 20px;
+    }
+    pre {
+      background-color: #f5f5f5;
+      padding: 15px;
+      border-radius: 5px;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+<body>
+  <h1>videojs-aniskip Example</h1>
+  <p>This is a sample page that demonstrates how the videojs-aniskip plugin works.</p>
+  
+  <div class="video-container">
+    <video id="my-video" class="video-js vjs-default-skin" controls preload="auto" width="640" height="360">
+      <source src="https://vjs.zencdn.net/v/oceans.mp4" type="video/mp4">
+      <p class="vjs-no-js">
+        To view this video please enable JavaScript, and consider upgrading to a web browser that
+        <a href="https://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a>
+      </p>
+    </video>
+  </div>
+  
+  <div class="options">
+    <h3>Plugin Options</h3>
+    <p>For this demo, the following options are configured:</p>
+    <pre>
+{
+  skipRanges: [
+    { start: 5, end: 10, type: 'intro' },
+    { start: 20, end: 25, type: 'outro' }
+  ],
+  buttonText: 'Skip Segment',
+  notificationText: 'Skipping segment...'
+}
+    </pre>
+    <p>This will show a skip button when the video reaches second 5 or second 20.</p>
+  </div>
+
+  <script src="https://unpkg.com/video.js/dist/video.min.js"></script>
+  <script src="dist/videojs-aniskip.min.js"></script>
+  <script>
+    (function(window, videojs) {
+      var player = window.player = videojs('my-video');
+      
+      // Initialize the plugin with options
+      player.aniskip({
+        skipRanges: [
+          { start: 5, end: 10, type: 'intro' },
+          { start: 20, end: 25, type: 'outro' }
+        ],
+        buttonText: 'Skip Segment',
+        notificationText: 'Skipping segment...'
+      });
+    }(window, videojs));
+  </script>
+</body>
+</html>

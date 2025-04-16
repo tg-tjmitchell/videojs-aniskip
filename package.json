@@ -1,0 +1,53 @@
+{
+  "name": "videojs-aniskip",
+  "version": "0.1.0",
+  "description": "A Video.js plugin for skipping anime intro/outro segments",
+  "type": "module",
+  "main": "dist/videojs-aniskip.cjs.js",
+  "module": "dist/videojs-aniskip.es.js",
+  "browser": "dist/videojs-aniskip.min.js",
+  "files": [
+    "dist/",
+    "src/",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "rollup -c",
+    "dev": "rollup -c -w",
+    "lint": "eslint src",
+    "prepare": "npm run build",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "videojs",
+    "videojs-plugin",
+    "anime",
+    "skip"
+  ],
+  "author": "",
+  "license": "MIT",
+  "peerDependencies": {
+    "video.js": "^7.0.0 || ^8.0.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.23.0",
+    "@babel/preset-env": "^7.22.20",
+    "@rollup/plugin-babel": "^6.0.3",
+    "@rollup/plugin-commonjs": "^25.0.4",
+    "@rollup/plugin-node-resolve": "^15.2.1",
+    "@rollup/plugin-terser": "^0.4.3",
+    "eslint": "^8.51.0",
+    "postcss": "^8.4.31",
+    "rollup": "^3.29.4",
+    "rollup-plugin-postcss": "^4.0.2",
+    "video.js": "^8.5.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/username/videojs-aniskip.git"
+  },
+  "bugs": {
+    "url": "https://github.com/username/videojs-aniskip/issues"
+  },
+  "homepage": "https://github.com/username/videojs-aniskip#readme"
+}

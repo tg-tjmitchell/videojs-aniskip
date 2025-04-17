@@ -332,7 +332,7 @@ AniskipPlugin.defaultState = {
 };
 
 // Define plugin version
-AniskipPlugin.VERSION = '0.1.0';
+AniskipPlugin.VERSION = '0.1.1';
 
 // Register the plugin with Video.js
 videojs.registerPlugin('aniskip', AniskipPlugin);

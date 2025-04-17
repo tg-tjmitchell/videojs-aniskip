@@ -1,9 +1,10 @@
 {
   "name": "videojs-aniskip",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A Video.js plugin for skipping anime intro/outro segments",
   "type": "module",
   "main": "dist/videojs-aniskip.cjs.js",
+  "types": "videojs-aniskip.d.ts",
   "module": "dist/videojs-aniskip.es.js",
   "browser": "dist/videojs-aniskip.min.js",
   "files": [

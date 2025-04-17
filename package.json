@@ -24,7 +24,7 @@
     "anime",
     "skip"
   ],
-  "author": "",
+  "author": "tg-tjmitchell",
   "license": "MIT",
   "peerDependencies": {
     "video.js": "^7.0.0 || ^8.0.0"
@@ -44,10 +44,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/username/videojs-aniskip.git"
+    "url": "git+https://github.com/tg-tjmitchell/videojs-aniskip.git"
   },
   "bugs": {
-    "url": "https://github.com/username/videojs-aniskip/issues"
+    "url": "https://github.com/tg-tjmitchell/videojs-aniskip/issues"
   },
-  "homepage": "https://github.com/username/videojs-aniskip#readme"
+  "homepage": "https://github.com/tg-tjmitchell/videojs-aniskip#readme"
 }

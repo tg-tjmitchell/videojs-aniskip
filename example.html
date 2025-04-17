@@ -18,7 +18,7 @@
     h1 {
       margin-bottom: 20px;
     }
-    .options {
+    .options, .events, .api-section {
       margin-top: 20px;
     }
     pre {
@@ -27,15 +27,119 @@
       border-radius: 5px;
       overflow-x: auto;
     }
+    #event-log {
+      height: 150px;
+      overflow-y: auto;
+      border: 1px solid #ddd;
+      padding: 10px;
+      margin-top: 10px;
+      font-family: monospace;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    input, select {
+      padding: 8px;
+      width: 100%;
+      max-width: 300px;
+    }
+    button {
+      background: #2196F3;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #0b7dda;
+    }
+    .button-group {
+      margin: 15px 0;
+    }
+    .skip-segment {
+      margin-bottom: 10px;
+      padding: 10px;
+      background: #f1f1f1;
+      border-left: 4px solid #2196F3;
+    }
+    #api-info {
+      margin-top: 15px;
+    }
+    .file-upload {
+      margin-bottom: 20px;
+      padding: 15px;
+      background: #f9f9f9;
+      border-radius: 5px;
+      border: 2px dashed #ddd;
+      text-align: center;
+      transition: all 0.3s;
+    }
+    .file-upload:hover {
+      border-color: #2196F3;
+    }
+    .file-upload input[type="file"] {
+      display: none;
+    }
+    .file-upload-btn {
+      display: inline-block;
+      margin: 10px 0;
+      cursor: pointer;
+      padding: 10px 20px;
+      background: #e0e0e0;
+      border-radius: 4px;
+      font-weight: bold;
+      transition: background 0.3s;
+    }
+    .file-upload-btn:hover {
+      background: #d0d0d0;
+    }
+    .video-placeholder {
+      background: #f1f1f1;
+      width: 640px;
+      height: 360px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      color: #666;
+    }
+    .hidden {
+      display: none !important;
+    }
   </style>
 </head>
 <body>
   <h1>videojs-aniskip Example</h1>
-  <p>This is a sample page that demonstrates how the videojs-aniskip plugin works.</p>
+  <p>This example demonstrates how the videojs-aniskip plugin works with AniSkip API integration.</p>
+  
+  <!-- Video Upload Section -->
+  <div class="file-upload" id="video-upload-area">
+    <h3>Upload a Video File</h3>
+    <p>Select a video file to test the AniSkip plugin</p>
+    <label class="file-upload-btn">
+      Choose Video
+      <input type="file" id="video-file-input" accept="video/*">
+    </label>
+    <p id="selected-file">No file selected</p>
+  </div>
   
   <div class="video-container">
-    <video id="my-video" class="video-js vjs-default-skin" controls preload="auto" width="640" height="360">
-      <source src="https://vjs.zencdn.net/v/oceans.mp4" type="video/mp4">
+    <!-- Placeholder shown before video is uploaded -->
+    <div class="video-placeholder" id="video-placeholder">
+      <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polygon points="23 7 16 12 23 17 23 7"></polygon>
+        <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
+      </svg>
+      <p>Upload a video to begin</p>
+    </div>
+    
+    <video id="my-video" class="video-js vjs-default-skin hidden" controls preload="auto" width="640" height="360">
       <p class="vjs-no-js">
         To view this video please enable JavaScript, and consider upgrading to a web browser that
         <a href="https://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a>
@@ -43,37 +147,367 @@
     </video>
   </div>
   
-  <div class="options">
-    <h3>Plugin Options</h3>
-    <p>For this demo, the following options are configured:</p>
-    <pre>
-{
-  skipRanges: [
-    { start: 5, end: 10, type: 'intro' },
-    { start: 20, end: 25, type: 'outro' }
-  ],
-  buttonText: 'Skip Segment',
-  notificationText: 'Skipping segment...'
-}
-    </pre>
-    <p>This will show a skip button when the video reaches second 5 or second 20.</p>
+  <div class="api-section">
+    <h3>AniSkip API Options</h3>
+    <div class="form-group">
+      <label for="mal-id">MyAnimeList ID:</label>
+      <input type="number" id="mal-id" placeholder="e.g. 21">
+    </div>
+    <div class="form-group">
+      <label for="episode-number">Episode Number:</label>
+      <input type="number" id="episode-number" placeholder="e.g. 1">
+    </div>
+    <div class="form-group">
+      <label for="episode-length">Episode Length (seconds):</label>
+      <input type="number" id="episode-length" placeholder="Auto-detected">
+    </div>
+    <div class="form-group">
+      <label>Skip Types:</label>
+      <div>
+        <input type="checkbox" id="skip-op" checked>
+        <label for="skip-op">Opening (OP)</label>
+        <input type="checkbox" id="skip-ed" checked style="margin-left: 15px;">
+        <label for="skip-ed">Ending (ED)</label>
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="auto-skip">
+        <input type="checkbox" id="auto-skip">
+        Auto Skip (without showing button)
+      </label>
+    </div>
+    <div class="button-group">
+      <button id="fetch-api-btn" disabled>Fetch from AniSkip API</button>
+    </div>
+    <div id="api-info">
+      <p>API Status: <span id="api-status">Not fetched</span></p>
+    </div>
+  </div>
+
+  <div class="manual-section">
+    <h3>Manual Skip Ranges</h3>
+    <p>You can also use manually defined skip ranges:</p>
+    <div class="form-group">
+      <label for="manual-start">Start Time (seconds):</label>
+      <input type="number" id="manual-start" min="0" value="5">
+    </div>
+    <div class="form-group">
+      <label for="manual-end">End Time (seconds):</label>
+      <input type="number" id="manual-end" min="0" value="15">
+    </div>
+    <div class="form-group">
+      <label for="manual-type">Type:</label>
+      <select id="manual-type">
+        <option value="op">Opening (op)</option>
+        <option value="ed">Ending (ed)</option>
+        <option value="recap">Recap</option>
+      </select>
+    </div>
+    <div class="button-group">
+      <button id="add-manual-btn" disabled>Add Manual Skip Range</button>
+      <button id="clear-manual-btn" style="margin-left: 10px; background: #f44336;" disabled>Clear All</button>
+    </div>
+    <div id="manual-ranges"></div>
+  </div>
+  
+  <div class="events">
+    <h3>Plugin Events</h3>
+    <p>The plugin fires events that you can listen to:</p>
+    <div id="event-log"></div>
+    <div class="button-group">
+      <button id="clear-events-btn">Clear Event Log</button>
+    </div>
+  </div>
+  
+  <div class="state">
+    <h3>Plugin State</h3>
+    <p>Current state:</p>
+    <pre id="state-display">State will be shown here</pre>
+    <button id="show-state-btn" disabled>Show Current State</button>
   </div>
 
   <script src="https://unpkg.com/video.js/dist/video.min.js"></script>
   <script src="dist/videojs-aniskip.min.js"></script>
   <script>
     (function(window, videojs) {
-      var player = window.player = videojs('my-video');
+      // Initialize variables
+      var player;
+      var aniskip;
+      var manualSkipRanges = [];
       
-      // Initialize the plugin with options
-      player.aniskip({
-        skipRanges: [
-          { start: 5, end: 10, type: 'intro' },
-          { start: 20, end: 25, type: 'outro' }
-        ],
-        buttonText: 'Skip Segment',
-        notificationText: 'Skipping segment...'
+      // DOM elements
+      var videoElement = document.getElementById('my-video');
+      var videoPlaceholder = document.getElementById('video-placeholder');
+      var videoFileInput = document.getElementById('video-file-input');
+      var selectedFileInfo = document.getElementById('selected-file');
+      var eventLog = document.getElementById('event-log');
+      var stateDisplay = document.getElementById('state-display');
+      var showStateBtn = document.getElementById('show-state-btn');
+      var fetchApiBtn = document.getElementById('fetch-api-btn');
+      var apiStatus = document.getElementById('api-status');
+      var addManualBtn = document.getElementById('add-manual-btn');
+      var clearManualBtn = document.getElementById('clear-manual-btn');
+      var manualRangesEl = document.getElementById('manual-ranges');
+      var clearEventsBtn = document.getElementById('clear-events-btn');
+      
+      // Listen for file selection
+      videoFileInput.addEventListener('change', function(event) {
+        var file = event.target.files[0];
+        if (!file) return;
+        
+        // Update the selected file information
+        selectedFileInfo.textContent = file.name;
+        
+        // Create object URL for the selected file
+        var videoURL = URL.createObjectURL(file);
+        
+        // Set the video source
+        if (player) {
+          player.dispose();
+        }
+        
+        // Show video element and hide placeholder
+        videoPlaceholder.classList.add('hidden');
+        videoElement.classList.remove('hidden');
+        
+        // Initialize video.js player
+        player = window.player = videojs('my-video', {
+          sources: [{
+            src: videoURL,
+            type: file.type
+          }]
+        });
+        
+        // Initialize the plugin
+        initializePlugin();
+        
+        // Enable buttons
+        fetchApiBtn.disabled = false;
+        addManualBtn.disabled = false;
+        clearManualBtn.disabled = false;
+        showStateBtn.disabled = false;
+        
+        // Log event
+        logEvent('Video loaded: ' + file.name);
       });
+      
+      // Helper function to safely stringify objects that might contain circular references
+      function safeStringify(obj, indent = 2) {
+        const cache = new Set();
+        
+        return JSON.stringify(obj, (key, value) => {
+          // Skip parent/circular references
+          if (key === 'player' || key === 'parentComponent_' || key === 'children_') {
+            return '[Circular Reference]';
+          }
+          
+          // Handle DOM nodes
+          if (value instanceof Node) {
+            return '[DOM Node]';
+          }
+          
+          // For objects that might have circular references
+          if (typeof value === 'object' && value !== null) {
+            if (cache.has(value)) {
+              return '[Circular]';
+            }
+            cache.add(value);
+          }
+          
+          return value;
+        }, indent);
+      }
+      
+      // Log messages to the event log
+      function logEvent(message) {
+        var time = new Date().toTimeString().split(' ')[0];
+        var entry = document.createElement('div');
+        entry.textContent = time + ': ' + message;
+        eventLog.appendChild(entry);
+        eventLog.scrollTop = eventLog.scrollHeight;
+      }
+      
+      function initializePlugin(options) {
+        if (!player) {
+          return;
+        }
+        
+        // Destroy previous instance if it exists
+        if (aniskip) {
+          aniskip.dispose();
+        }
+        
+        // Default options
+        var defaultOptions = {
+          skipRanges: manualSkipRanges,
+          autoSkip: document.getElementById('auto-skip').checked
+        };
+        
+        // Merge with provided options
+        var pluginOptions = options ? Object.assign({}, defaultOptions, options) : defaultOptions;
+        
+        // Initialize the plugin
+        aniskip = player.aniskip(pluginOptions);
+        
+        // Set up event listeners
+        setupEventListeners();
+        
+        logEvent('Plugin initialized with options: ' + safeStringify(pluginOptions));
+        updateManualRangesDisplay();
+        
+        return aniskip;
+      }
+      
+      function setupEventListeners() {
+        if (!aniskip) return;
+        
+        // Listen for the skip event
+        aniskip.on('skip', function(event, data) {
+          logEvent('Skipped range: ' + safeStringify(data.range));
+        });
+        
+        // Listen for state changes
+        aniskip.on('statechanged', function(event, changes) {
+          logEvent('State changed: ' + safeStringify(changes));
+        });
+        
+        // Listen for segment loading
+        aniskip.on('segmentsloaded', function(event, data) {
+          logEvent('Segments loaded: ' + data.segments.length + ' segments');
+          apiStatus.textContent = 'Found ' + data.segments.length + ' skip segments';
+          apiStatus.style.color = '#4CAF50';
+        });
+        
+        // Listen for errors
+        aniskip.on('error', function(event, data) {
+          logEvent('Error: ' + data.error.message);
+          apiStatus.textContent = 'Error: ' + data.error.message;
+          apiStatus.style.color = '#f44336';
+        });
+      }
+      
+      // Event listeners for buttons
+      showStateBtn.addEventListener('click', function() {
+        if (aniskip) {
+          stateDisplay.textContent = safeStringify(aniskip.state);
+        }
+      });
+      
+      fetchApiBtn.addEventListener('click', function() {
+        if (!player) return;
+        
+        var malId = document.getElementById('mal-id').value;
+        var episodeNumber = document.getElementById('episode-number').value;
+        var episodeLength = document.getElementById('episode-length').value || null;
+        var types = [];
+        
+        if (document.getElementById('skip-op').checked) {
+          types.push('op');
+        }
+        
+        if (document.getElementById('skip-ed').checked) {
+          types.push('ed');
+        }
+        
+        if (!malId || !episodeNumber) {
+          apiStatus.textContent = 'Please enter MAL ID and episode number';
+          apiStatus.style.color = '#f44336';
+          return;
+        }
+        
+        apiStatus.textContent = 'Fetching...';
+        apiStatus.style.color = '#2196F3';
+        
+        var options = {
+          malId: parseInt(malId),
+          episodeNumber: parseInt(episodeNumber),
+          types: types,
+          autoSkip: document.getElementById('auto-skip').checked
+        };
+        
+        if (episodeLength) {
+          options.episodeLength = parseInt(episodeLength);
+        }
+        
+        initializePlugin(options);
+      });
+      
+      addManualBtn.addEventListener('click', function() {
+        if (!player) return;
+        
+        var start = parseFloat(document.getElementById('manual-start').value);
+        var end = parseFloat(document.getElementById('manual-end').value);
+        var type = document.getElementById('manual-type').value;
+        
+        if (isNaN(start) || isNaN(end) || start >= end) {
+          alert('Please enter valid start and end times');
+          return;
+        }
+        
+        manualSkipRanges.push({
+          start: start,
+          end: end,
+          type: type
+        });
+        
+        initializePlugin();
+      });
+      
+      clearManualBtn.addEventListener('click', function() {
+        manualSkipRanges = [];
+        updateManualRangesDisplay();
+        if (player) {
+          initializePlugin();
+        }
+      });
+      
+      clearEventsBtn.addEventListener('click', function() {
+        eventLog.innerHTML = '';
+      });
+      
+      function updateManualRangesDisplay() {
+        manualRangesEl.innerHTML = '';
+        
+        if (manualSkipRanges.length === 0) {
+          manualRangesEl.innerHTML = '<p>No manual skip ranges defined</p>';
+          return;
+        }
+        
+        manualSkipRanges.forEach(function(range, index) {
+          var rangeEl = document.createElement('div');
+          rangeEl.className = 'skip-segment';
+          
+          var typeLabel = range.type === 'op' ? 'Opening' : 
+                         range.type === 'ed' ? 'Ending' : 
+                         range.type === 'recap' ? 'Recap' : range.type;
+          
+          rangeEl.innerHTML = '<strong>' + typeLabel + ':</strong> ' + 
+                             formatTime(range.start) + ' - ' + formatTime(range.end) +
+                             ' <button class="remove-btn" data-index="' + index + '">Remove</button>';
+          
+          manualRangesEl.appendChild(rangeEl);
+        });
+        
+        // Add event listeners to remove buttons
+        document.querySelectorAll('.remove-btn').forEach(function(btn) {
+          btn.addEventListener('click', function() {
+            var index = parseInt(this.getAttribute('data-index'));
+            manualSkipRanges.splice(index, 1);
+            updateManualRangesDisplay();
+            if (player) {
+              initializePlugin();
+            }
+          });
+        });
+      }
+      
+      // Format seconds to MM:SS
+      function formatTime(seconds) {
+        var mins = Math.floor(seconds / 60);
+        var secs = Math.floor(seconds % 60);
+        return mins + ':' + (secs < 10 ? '0' : '') + secs;
+      }
+      
     }(window, videojs));
   </script>
 </body>
